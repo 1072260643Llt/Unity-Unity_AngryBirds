@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 public class Bird : MonoBehaviour
 {
     private bool isClick=false;
@@ -9,7 +9,7 @@ public class Bird : MonoBehaviour
     public float maxDis=2;//拖拽的最大距离
     [HideInInspector]//虽然是公有变量，但能在Inspector面板中隐藏此变量
     public SpringJoint2D sp;
-    protected Rigidbody2D rg;//刚体组件中含有小鸟速度的属性
+    public Rigidbody2D rg;//刚体组件中含有小鸟速度的属性
 
     public LineRenderer right;
     public LineRenderer left;
@@ -34,6 +34,11 @@ public class Bird : MonoBehaviour
 
     protected SpriteRenderer render;
 
+
+    private float spDistance;
+    private float spFrequency;
+    private bool isFire = false;
+    
     private void Awake() {//脚本实例化时加载组件
         sp=GetComponent<SpringJoint2D>();
         rg=GetComponent<Rigidbody2D>();
@@ -41,6 +46,16 @@ public class Bird : MonoBehaviour
         render=GetComponent<SpriteRenderer>();
         
     }
+
+
+    private void Start()
+    {
+        spDistance = sp.distance;
+        spFrequency = sp.frequency;
+        sp.distance = 0;
+        sp.frequency = 0;
+    }
+
 
     private void OnMouseDown() {
         if(canMove){
@@ -54,6 +69,8 @@ public class Bird : MonoBehaviour
             //播放音效
             AudioPlay(select);
 
+            sp.frequency = spFrequency;
+            sp.distance = spDistance;
         }
         
     }
@@ -69,6 +86,7 @@ public class Bird : MonoBehaviour
             right.enabled=false;
             left.enabled=false;
             canMove=false;
+            isFire = true;
         }
         
     }
@@ -80,6 +98,7 @@ public class Bird : MonoBehaviour
         return;
 
         if(isClick){
+            
             transform.position=Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position+=new Vector3(0,0,-Camera.main.transform.position.z);
         
@@ -96,9 +115,11 @@ public class Bird : MonoBehaviour
 
         // 主相机跟随
         float posX=transform.position.x;//小鸟位置
-        Camera.main.transform.position=Vector3.Lerp(Camera.main.transform.position,
-        new Vector3(Mathf.Clamp(posX,-4,15),Camera.main.transform.position.y,Camera.main.transform.position.z),
+        var position = Camera.main.transform.position;
+        position=Vector3.Lerp(position,
+        new Vector3(Mathf.Clamp(posX,-4,15),position.y,position.z),
         smooth*Time.deltaTime);
+        Camera.main.transform.position = position;
 
 
         if(isFly){
@@ -128,6 +149,7 @@ public class Bird : MonoBehaviour
     }
 
    protected virtual void Next(){//下一只小鸟飞出,从集合中移除当前小鸟并销毁该小鸟对象
+       
         GameManager._instance.birds.Remove(this);
         Destroy(gameObject);
         Instantiate(boom,transform.position,Quaternion.identity);
@@ -138,7 +160,10 @@ public class Bird : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision) {
         isFly=false;
         myTrail.ClearTrails();//小鸟碰撞到物体时取消小尾巴
-        
+        if (this.isFire)
+        {
+            this.Invoke("Next",1);
+        }
     }
 
     public void AudioPlay(AudioClip clip){

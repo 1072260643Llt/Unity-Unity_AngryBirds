@@ -239,7 +239,7 @@ SpringJoint2D:
   m_AutoConfigureDistance: 0
   m_Distance: 0.22
   m_DampingRatio: 0
-  m_Frequency: 2
+  m_Frequency: 3
 --- !u!114 &2661797232512645001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,9 +259,11 @@ MonoBehaviour:
   rightPos: {fileID: 0}
   leftPos: {fileID: 0}
   boom: {fileID: 2049427125715447659, guid: f3184d80ed9e0e14eafbdd52ca530eba, type: 3}
+  canMove: 0
   smooth: 3
   select: {fileID: 8300000, guid: 3641c9435ad52ea429348437c2742cdb, type: 3}
   fly: {fileID: 8300000, guid: 65774e057815a5e4fa70215e9acad616, type: 3}
+  isRelease: 0
   hurt: {fileID: 21300132, guid: 6a875913f1218c748bb441934b734eb8, type: 3}
 --- !u!114 &2661797232512645003
 MonoBehaviour:
